@@ -1,24 +1,23 @@
 {
-  "name": "webrtc-tutorial",
-  "version": "0.0.1",
-  "description": "WebRTC codelab",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sorube13/WebRTC-DEMO"
-  },
-  "keywords": [
-    "webrtc",
-    "demo"
-  ],
-  "author": "sorube",
-  "license": "MIT",
+  "name": "Tutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
   "dependencies": {
-    "node-static": "~0.7.1",
-    "socket.io": "~0.9.16",
-    "express": "~3.4.0"
+    "express": "^3.4.8",
+    "node-static": "^0.7.7",
+    "socket.io": "^0.9.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "engines":{
+    "node": "4.3.1",
+    "npm": "2.14.12"
   }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

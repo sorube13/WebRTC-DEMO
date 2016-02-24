@@ -7,9 +7,7 @@
 <meta name="description" content="WebRTC codelab" />
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1">
 
-<title>WebRTC codelab: step 1</title>
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<title>WebRTC client</title>
 
 
 <!-- When we finish the codelab we'll move CSS and JavaScript to separate files -->
@@ -18,155 +16,14 @@
 <style>
 </style>
 
-    <script src='js/lib/adapter.js'></script>
-
 </head>
 
 <body>
 
 <h1>This is the demo for WebRTC!</h1>
-<div class="row">
-	<video class= "col-xs-6 col-sm-4" id="localVideo" autoplay></video>
-	<video class= "col-xs-6 col-md-4" id="remoteVideo" autoplay></video>
-</div>
-
-<div class="row">
-	<button class="col-sm-3 btn btn-success btn-lg"  id="startButton">Start</button>
-	<button class="col-sm-3 btn btn-warning btn-lg" id="stopButton">Stop</button>
-	<button class="col-sm-3 btn btn-primary btn-lg" id="callButton">Call</button>
-	<button class="col-sm-3 btn btn-danger btn-lg" id="hangupButton">Hang Up</button>
-</div>
-
-<!-- JavaScript will go here -->
-<script>
-	var localStream, localPeerConnection, remotePeerConnection;
-
-	var localVideo = document.getElementById("localVideo");
-	var remoteVideo = document.getElementById("remoteVideo");
-
-	var startButton = document.getElementById("startButton");
-	var stopButton = document.getElementById("stopButton");
-	var callButton = document.getElementById("callButton");
-	var hangupButton = document.getElementById("hangupButton");
-
-	startButton.disabled = false;
-	stopButton.disabled = true;
-	callButton.disabled = true;
-	hangupButton.disabled = true;
-
-	startButton.onclick = start;
-	stopButton.onclick = stop;
-	callButton.onclick = call;
-	hangupButton.onclick = hangup;
-
-	function trace(text){
-		console.log((performance.now()/1000).toFixed(3) + ": " + text);
-	}
-
-	function gotStream(stream){
-		trace("Received local stream");
-		localVideo.src = URL.createObjectURL(stream);
-		localStream = stream;
-		callButton.disabled = false;
-		stopButton.disabled = false;
-	}
-
-	function start(){
-		trace("Requesting local stream");
-		startButton.disabled = true;
-		getUserMedia({video: true, audio: true}, gotStream,
-			function(error){
-				trace("getUserMedia error: ", error);
-		});
-	}
-
-	function call(){
-		callButton.disabled = true;
-		hangupButton.disabled = false;
-		trace("Starting call");
-
-		if(localStream.getVideoTracks().length >0){
-			trace("Using video device: " + localStream.getVideoTracks()[0].label);
-		}
-		if(localStream.getAudioTracks().length >0){
-			trace("Using audio device: " + localStream.getAudioTracks()[0].label);
-		}
-
-		var servers = null;
-
-		localPeerConnection = new RTCPeerConnection(servers);
-		trace("Created local peer connection object localPeerConnection");
-		localPeerConnection.onicecandidate = gotLocalIceCandidate;
-
-		remotePeerConnection = new RTCPeerConnection(servers);
-		trace("Created remote peer connection object remotePeerConnection");
-		remotePeerConnection.onicecandidate =gotRemoteIceCandidate;
-		remotePeerConnection.onaddstream = gotRemoteStream;
-
-		localPeerConnection.addStream(localStream);
-		trace("Added localStream to localPeerConnection");
-		localPeerConnection.createOffer(gotLocalDescription, handleError);
-	}
-
-	function gotLocalDescription(description){
-		localPeerConnection.setLocalDescription(description);
-		trace("Offer from localPeerConnection: \n" + description.sdp);
-		remotePeerConnection.setRemoteDescription(description);
-		remotePeerConnection.createAnswer(gotRemoteDescription, handleError);
-	}
-
-	function gotRemoteDescription(description){
-		remotePeerConnection.setLocalDescription(description);
-		trace("Answer from remotePeerConnection: \n" + description.sdp);
-		localPeerConnection.setRemoteDescription(description);
-	}
-
-	function hangup(){
-		trace("Ending call");
-		localPeerConnection.close();
-		remotePeerConnection.close();
-		localPeerConnection = null;
-		remotePeerConnection = null;
-		hangupButton.disabled = true;
-		callButton.disabled = false;
-		remoteVideo.src = "";
-	}
-
-	function stop(){
-		trace("Stopping stream");
-		if(localPeerConnection)
-			hangup();
-		for(var i=0; i<localStream.getTracks().length; i++){
-			 var track = localStream.getTracks()[i];
-			 track.stop();
-		}
-		callButton.disabled = true;
-		startButton.disabled = false;
-		stopButton.disabled = true;
-		localVideo.src = "";
-		remoteVideo.src = "";
-	}
-
-	function gotRemoteStream(event){
-		remoteVideo.src = URL.createObjectURL(event.stream);
-		trace("Received remote stream");
-	}
-
-	function gotLocalIceCandidate(event){
-		if(event.candidate){
-			remotePeerConnection.addIceCandidate(new RTCIceCandidate(event.candidate));
-			trace("Local ICE candidate: \n"+ event.candidate.candidate);
-		}
-	}
-
-	function gotRemoteIceCandidate(event){
-		if(event.candidate){
-			localPeerConnection.addIceCandidate(new RTCIceCandidate(event.candidate));
-			trace("Remote ICE candidate: \n" + event.candidate.candidate);
-		}
-	}
-
-	function handleError(){}
+<script src='js/lib/adapter.js'></script>
+<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+<script src="js/main.js"></script>
 
 </script>
 
