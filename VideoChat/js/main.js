@@ -24,12 +24,16 @@ if (room === '') {
   //room = prompt('Enter room name:');
   room = 'foo';
   document.querySelector('#roomTitle').innerHTML = room;
+
 } else {
   //
 }
 
-var socket = io.connect();
-//var socket = io.connect(location, {'sync disconnect on unload': true, 'secure': true});
+if (location.hostname != "localhost") {
+  var socket = io.connect(location, {'sync disconnect on unload': true, 'secure': true});
+}else{
+  var socket = io.connect();
+}
 
 if (room !== '') {
   console.log('Create or join room', room);
@@ -64,10 +68,18 @@ socket.on('log', function (array){
 
 function sendMessage(message){
   console.log('Client sending message: ', message);
-  // if (typeof message === 'object') {
-  //   message = JSON.stringify(message);
-  // }
+/*if (typeof message === 'object') {
+    message = JSON.stringify(message);
+  }*/
   socket.emit('message', message);
+}
+
+function handleAddIceCandidate(){
+  //console.log("addIceCandidate success");
+}
+
+function handleAddIceCandidateError(e){
+  console.log("addIceCandidate error: " + e);
 }
 
 socket.on('message', function (message){
@@ -87,7 +99,7 @@ socket.on('message', function (message){
       sdpMLineIndex: message.label,
       candidate: message.candidate
     });
-    pc.addIceCandidate(candidate, function(){console.log("success!");}, function(e){console.log(e);});
+    pc.addIceCandidate(candidate, handleAddIceCandidate, handleAddIceCandidateError);
   } else if (message === 'bye' && isStarted) {
     handleRemoteHangup();
   }
@@ -101,6 +113,7 @@ var remoteVideo = document.querySelector('#remoteVideo');
 function handleUserMedia(stream) {
   console.log('Adding local stream.');
   localVideo.src = window.URL.createObjectURL(stream);
+  localVideo.play();
   localStream = stream;
   sendMessage('got user media');
   if (isInitiator) {
@@ -209,8 +222,8 @@ function requestTurn() {
                 ident: "sorube",
                 secret: "3ba84e92-dc9f-11e5-be0d-27778885886f",
                 domain: "www.silvia-battleship.com",
-                application: "default",
-                room: 'default',
+                application: "battleship",
+                room: 'room1',
                 secure: 1
             },
             success: function (data, status) {

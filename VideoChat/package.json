@@ -2,7 +2,7 @@
   "name": "node-js-getting-started",
   "version": "0.1.5",
   "description": "A sample Node.js app using Express 4",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
@@ -10,7 +10,7 @@
     "ejs": "2.3.3",
     "express": "4.13.3",
     "node-static": "^0.7.7",
-    "socket.io": "^0.9.17"
+    "socket.io": "^0.9.17"    
   },
   "engines": {
     "node": "0.12.7"
