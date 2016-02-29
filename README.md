@@ -3,9 +3,13 @@ Demo WebRTC
 
 
 To execute:
-1. Go to the folder of the project you wish to execute
-2. npm install
-3. node server.js
+
+
+  1. Go to the folder of the project you wish to execute
+
+  2. npm install
+  
+  3. node server.js
 
 
 ##Sockets
