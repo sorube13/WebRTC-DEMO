@@ -42,7 +42,5 @@ io.sockets.on('connection', function (socket){
 		}
 		socket.emit('emit(): client ' + socket.id + ' joined room ' + room);
 		socket.broadcast.emit('broadcast(): client ' + socket.id + ' joined room ' + room);
-
 	});
-
 });

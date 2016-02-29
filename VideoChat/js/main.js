@@ -8,7 +8,7 @@ var pc;
 var remoteStream;
 var turnReady;
 
-var pc_config = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]};
+var pc_config; // = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]};
 
 var pc_constraints = {'optional': [{'DtlsSrtpKeyAgreement': true}]};
 
@@ -23,11 +23,13 @@ var room = location.pathname.substring(1);
 if (room === '') {
   //room = prompt('Enter room name:');
   room = 'foo';
+  document.querySelector('#roomTitle').innerHTML = room;
 } else {
   //
 }
 
 var socket = io.connect();
+//var socket = io.connect(location, {'sync disconnect on unload': true, 'secure': true});
 
 if (room !== '') {
   console.log('Create or join room', room);
@@ -61,7 +63,7 @@ socket.on('log', function (array){
 ////////////////////////////////////////////////
 
 function sendMessage(message){
-	console.log('Client sending message: ', message);
+  console.log('Client sending message: ', message);
   // if (typeof message === 'object') {
   //   message = JSON.stringify(message);
   // }
@@ -71,7 +73,7 @@ function sendMessage(message){
 socket.on('message', function (message){
   console.log('Client received message:', message);
   if (message === 'got user media') {
-  	maybeStart();
+    maybeStart();
   } else if (message.type === 'offer') {
     if (!isInitiator && !isStarted) {
       maybeStart();
@@ -85,7 +87,7 @@ socket.on('message', function (message){
       sdpMLineIndex: message.label,
       candidate: message.candidate
     });
-    pc.addIceCandidate(candidate);
+    pc.addIceCandidate(candidate, function(){console.log("success!");}, function(e){console.log(e);});
   } else if (message === 'bye' && isStarted) {
     handleRemoteHangup();
   }
@@ -110,15 +112,16 @@ function handleUserMediaError(error){
   console.log('getUserMedia error: ', error);
 }
 
-var constraints = {video: true};
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-navigator.getUserMedia(constraints, handleUserMedia, handleUserMediaError);
+var constraints = {video: true,
+                   audio: true};
+getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 
 console.log('Getting user media with constraints', constraints);
 
-if (location.hostname != "localhost") {
-  requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
-}
+/*if (location.hostname != "localhost") {
+  requestTurn();
+}*/
+requestTurn();
 
 function maybeStart() {
   if (!isStarted && typeof localStream != 'undefined' && isChannelReady) {
@@ -133,7 +136,8 @@ function maybeStart() {
 }
 
 window.onbeforeunload = function(e){
-	sendMessage('bye');
+  sendMessage('bye');
+  socket.close();
 }
 
 /////////////////////////////////////////////////////////
@@ -197,34 +201,24 @@ function setLocalAndSendMessage(sessionDescription) {
   sendMessage(sessionDescription);
 }
 
-function requestTurn(turn_url) {
+function requestTurn() {
   var turnExists = false;
-  for (var i in pc_config.iceServers) {
-    if (pc_config.iceServers[i].url.substr(0, 5) === 'turn:') {
-      turnExists = true;
-      turnReady = true;
-      break;
-    }
-  }
-  if (!turnExists) {
-    console.log('Getting TURN server from ', turn_url);
-    // No TURN server. Get one from computeengineondemand.appspot.com:
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function(){
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var turnServer = JSON.parse(xhr.responseText);
-      	console.log('Got TURN server: ', turnServer);
-        pc_config.iceServers.push({
-          'url': 'turn:' + turnServer.username + '@' + turnServer.turn,
-          'credential': turnServer.password
+  $.ajax({
+            url: "https://service.xirsys.com/ice",
+            data: {
+                ident: "sorube",
+                secret: "3ba84e92-dc9f-11e5-be0d-27778885886f",
+                domain: "www.silvia-battleship.com",
+                application: "default",
+                room: 'default',
+                secure: 1
+            },
+            success: function (data, status) {
+                // data.d is where the iceServers object lives
+                pc_config = data.d;
+                console.log(pc_config);
+            }
         });
-        turnReady = true;
-      }
-    };
-    xhr.open('GET', turn_url, true);
-    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-    xhr.send();
-  }
 }
 
 function handleRemoteStreamAdded(event) {
@@ -275,21 +269,21 @@ function preferOpus(sdp) {
   } else{
 
   // If Opus is available, set it as the default in m line.
-	  for (i = 0; i < sdpLines.length; i++) {
-	    if (sdpLines[i].search('opus/48000') !== -1) {
-	      var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
-	      if (opusPayload) {
-	        sdpLines[mLineIndex] = setDefaultCodec(sdpLines[mLineIndex], opusPayload);
-	      }
-	      break;
-	    }
-	  }
-	  // Remove CN in m line and sdp.
-	  sdpLines = removeCN(sdpLines, mLineIndex);
+    for (i = 0; i < sdpLines.length; i++) {
+      if (sdpLines[i].search('opus/48000') !== -1) {
+        var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
+        if (opusPayload) {
+          sdpLines[mLineIndex] = setDefaultCodec(sdpLines[mLineIndex], opusPayload);
+        }
+        break;
+      }
+    }
+    // Remove CN in m line and sdp.
+    sdpLines = removeCN(sdpLines, mLineIndex);
 
-	  sdp = sdpLines.join('\r\n');
-	  return sdp;
-	}
+    sdp = sdpLines.join('\r\n');
+    return sdp;
+  }
 }
 
 function extractSdp(sdpLine, pattern) {

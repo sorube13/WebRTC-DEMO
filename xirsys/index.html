@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="http://simplewebrtc.com/latest.js"></script> 
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+        <style>
+            #remoteVideos video {
+                height: 150px;
+            }
+            #localVideo {
+                height: 150px;
+            }
+        </style> 
+    </head>
+    <body>
+        <video id="localVideo"></video>
+        <div id="remoteVideos"></div> 
+
+        <script type="text/javascript">
+
+        // This object will take in an array of XirSys STUN / TURN servers
+        // and override the original peerConnectionConfig object
+        var peerConnectionConfig;
+
+        $.ajax({
+            url: "https://service.xirsys.com/ice",
+            data: {
+                ident: "sorube",
+                secret: "3ba84e92-dc9f-11e5-be0d-27778885886f",
+                domain: "www.silvia-battleship.com",
+                application: "default",
+                room: 'default',
+                secure: 1
+            },
+            success: function (data, status) {
+                // data.d is where the iceServers object lives
+                peerConnectionConfig = data.d;
+                console.log(peerConnectionConfig);
+            }
+        });
+
+
+        // Create our WebRTC connection
+        var webrtc = new SimpleWebRTC({
+            // The DOM element that will hold "our" video
+            localVideoEl: 'localVideo',
+            // The DOM element that will hold remote videos
+            remoteVideosEl: 'remoteVideos',
+            // Immediately ask for camera access
+            autoRequestMedia: true,
+            debug: false,
+            //detectSpeakingEvents: true,
+            //autoAdjustMic: false,
+            // Add the new peerConnectionConfig object
+            peerConnectionConfig: peerConnectionConfig
+        });
+
+        webrtc.on('readyToCall', function(){
+            webrtc.joinRoom('Awesome room name!');
+        })
+        </script>
+    </body>
+</html>

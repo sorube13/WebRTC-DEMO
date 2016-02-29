@@ -5,17 +5,20 @@
 <meta name="keywords" content="WebRTC, HTML5, JavaScript" />
 <meta name="description" content="WebRTC Reference App" />
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+
 <meta charset="UTF-8"> 
 <title>WebRTC client</title>
 
 </head>
 
 <body>
-<h1>WebRTC!</h1>
+<h1 id="roomTitle"></h1>
 
 <div id="container">
   <div id="videos">
-    <video id="localVideo" autoplay></video>
+    <video id="localVideo" muted autoplay></video>
     <video id="remoteVideo" autoplay></video>
   </div>
 </div>
