@@ -5,8 +5,8 @@ This application has the same content as https://peaceful-depths-17097.herokuapp
 To run this application:
 
 ```sh
-$ git clone https://github.com/sorube13/WebRTC-DEMO/tree/master/VideoChat # or clone your own fork
-$ cd VideoChat
+$ git clone https://github.com/sorube13/WebRTC-DEMO.git # or clone your own fork
+$ cd WebRTC-DEMO/VideoChat
 $ npm install
 $ npm start
 ```
