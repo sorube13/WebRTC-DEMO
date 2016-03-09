@@ -8,6 +8,8 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
 <script src='/socket.io/socket.io.js'></script>
 <script src='js/lib/adapter.js'></script>
 
@@ -16,13 +18,13 @@
 
 </head>
 
-<body>
-<h1 id="roomTitle"></h1>
+<body style="background-color: #E6E6FA">
+<h1 id="roomTitle" class="bg-primary"><b>Welcome to Room: <b></h1>
 
-<div id="container">
-  <div id="videos">
-    <video id="localVideo" muted autoplay></video>
-    <video id="remoteVideo" autoplay></video>
+<div id="container" class="container-fluid">
+  <div id="videos" class="row">
+    <video class="col-xs-6 col-sm-6 col-md-4" id="localVideo" muted autoplay></video>
+    <video  class="col-xs-6 col-sm-6 col-md-4" id="remoteVideo" autoplay></video>
   </div>
 </div>
 
